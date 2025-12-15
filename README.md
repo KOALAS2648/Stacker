@@ -1,12 +1,13 @@
-All the funnctions that a stack uses are supported:
+All the funnctions that a stack uses are supported: - these functions aren't case sensitive
 PUSH <p></p>
 POP <p></p>
 PEEK<p></p>
-isEmpty - True / False<p></p>
-size - size of the satck<p></p>
+isEmpty/isFull - True / False<p></p>
+SIZE - size of the satck<p></p>
+
 <p></p>
 <p></p>
-Extra functions:<p></p><p></p>
+Extra functions:- these functions are case sensitive and must be in all caps<p></p>
 STACK - creates a stack object to use <b>MUST BE USED BEFORE USING PUSH / POP</B><p></p>
 LOOP/END - used when you want to do a line of code multipule times <p></p>
 
