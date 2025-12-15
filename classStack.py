@@ -23,6 +23,11 @@ class Stack:
             return -1
     def isEmpty(self):
         return self.top_pointer == -1
+<<<<<<< HEAD
+=======
+    def isFull(self):
+        return self.top_pointer == self.MAX_SIZE
+>>>>>>> b077126 (completed stuff)
     def size(self):
         return self.top_pointer
 if __name__ == "__main__":
