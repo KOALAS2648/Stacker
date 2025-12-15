@@ -23,24 +23,25 @@ def main(file):
     loop_words = ["LOOP", "END"]
     for idx, line in enumerate(file_data):
         #print(line)
+        command = line[0]
         loop_flag = False
         if line == [""]:
             continue
-        elif line[0] in stacks and line[1].upper() == "STACK":
-            raise Exception(f"stack '{line[0]}' cannot be created as stack '{line[0]}' already exists")
-        if line[0] not in loop_words:
-            if line[0] not in stacks and line[1].upper() == "STACK":
-                stacks[line[0]] = cs.Stack(int(line[-1]))
+        elif command in stacks and line[1].upper() == "STACK":
+            raise Exception(f"stack '{command}' cannot be created as stack '{command}' already exists")
+        if command not in loop_words:
+            if command not in stacks and line[1].upper() == "STACK":
+                stacks[command] = cs.Stack(int(line[-1]))
                 continue
-        if line[0] in loop_words:
-            pass
+        if command in loop_words:
+            continue
         else:
             try:
-                stack_name = stacks[line[0]]
+                stack_name = stacks[command]
             except KeyError:
-                raise Exception(f"stack {line[0]} does not exist")
+                raise Exception(f"stack {command} does not exist")
         
-        if line[0] not in loop_words:
+        if command not in loop_words:
             n = line[1]
             match n.upper():
                 case "PUSH":
@@ -60,7 +61,7 @@ def main(file):
                 case _:
                     raise Exception(f"Invalid command: {line[1]}")
 
-        elif line[0] == "LOOP":
+        elif command == "LOOP":
             dataToInsert = parse(idx, file_data[idx:], int(line[1]))
             file_data.pop(idx)
             for i in dataToInsert:
