@@ -1,10 +1,5 @@
 import classStack as cs
 
-
-#print(file_data)
-
-
-
 def parse(idxInlist, section, times):
     counter = 0
     return_code =[]
