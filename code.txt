@@ -15,8 +15,4 @@ first_stack PUSH 70
 first_stack PUSH 80
 first_stack PEEK
 
-first_stack print
-LOOP 1
-first_stack push 56
-END
-first_stack print
+
