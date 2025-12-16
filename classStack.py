@@ -6,17 +6,15 @@ class Stack:
     def push(self, inp):
         self.top_pointer +=1
         if self.top_pointer == self.MAX_SIZE:
-            raise Exception("stack overflow error")
+            raise StackOverFlow("stack overflow error")
         self.data.insert(self.top_pointer, inp)
         
     def pop(self):
         if self.top_pointer == -1:
-            raise Exception("stack underflow error")
+            raise StackUnderFlow("stack underflow error")
         self.data.pop(self.top_pointer)
         self.top_pointer -=1
     def peek(self):
-        #print(self.top_pointer)
-        #print(self.data)
         if not self.isEmpty():
             return self.data[self.top_pointer]
         else:

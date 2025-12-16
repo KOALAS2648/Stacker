@@ -1,5 +1,5 @@
 import classStack as cs
-
+from Errors import *
 def parse(idxInlist, section, times):
     counter = 0
     return_code =[]
@@ -28,7 +28,7 @@ def main(file):
         if line == [""]:
             continue
         elif command_word in stacks and line[1].upper() == "STACK":
-            raise Exception(f"stack '{command_word}' cannot be created as stack '{command_word}' already exists")
+            raise StackExist(f"stack '{command_word}' cannot be created as stack '{command_word}' already exists")
         if command_word not in loop_words:
             if command_word not in stacks and line[1].upper() == "STACK":
                 stacks[command_word] = cs.Stack(int(line[-1]))
@@ -39,7 +39,7 @@ def main(file):
             try:
                 stack_name = stacks[command_word]
             except KeyError:
-                raise Exception(f"stack {command_word} does not exist")
+                raise StackDoesNotExist(f"stack {command_word} does not exist")
         
         if command_word not in loop_words:
             n = line[1]
@@ -59,7 +59,7 @@ def main(file):
                 case "ISFULL":
                     print(stack_name.isFull())
                 case _:
-                    raise Exception(f"Invalid command: {line[1]}")
+                    raise InvalidCommand(f"Invalid command: {line[1]}")
 
         elif command_word == "LOOP":
             dataToInsert = parse(idx, file_data[idx:], int(line[1]))
@@ -70,5 +70,6 @@ def main(file):
 
 
 if __name__ == "__main__":
-    main("test.txt")
+    main("code.txt")
 
+#https://github.com/KOALAS2648/Stacker/tree/main
