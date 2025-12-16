@@ -1,6 +1,6 @@
 import classStack as cs
-from Errors import *
 import os
+from Errors import *
 def parse(idxInlist, section, times):
     counter = 0
     return_code =[]
@@ -14,7 +14,21 @@ def parse(idxInlist, section, times):
     return [i for i in repeatedSection*times]
 
 
-def main(file, option):
+def main(file, option, clearName):
+    file_data_flag = False
+    match option:
+        case "-fd" | "--file-data":
+            file_data_flag =  True
+        case "-c" | "--clear":
+            os.system(clearName)
+        case None:
+            pass
+        case _:
+            try:
+                raise InvalidOption("Invalid operation used")
+            except InvalidOption as IO:
+                print(IO)
+                return 
     stacks = {}
     file = open(file, "r")
     file_data = file.readlines()
@@ -42,7 +56,11 @@ def main(file, option):
             try:
                 stack_name = stacks[command_word]
             except KeyError:
-                raise StackDoesNotExist(f"stack {command_word} does not exist")
+                try:
+                    raise StackDoesNotExist(f"stack {command_word} does not exist")
+                except StackDoesNotExist as SDNE:
+                    print(SDNE)
+                    break
         
         if command_word not in loop_words:
             n = line[1]
@@ -69,15 +87,20 @@ def main(file, option):
             file_data.pop(idx)
             for i in dataToInsert:
                 file_data.insert(idx, i)
-    match option:
-        case "-fd" | "--file-data":
-            print(file_data)
-        case _:
-            raise InvalidOption("Invalid operation used")
+    if file_data_flag:
+        print(file_data)
 
 
 if __name__ == "__main__":
-    os.system("clear")
+    OS=os.name
+    match OS:
+        case "posix":
+            clearing_use = "clear"
+        case "nt":
+            clearing_use = "cls"
+        case _:
+            print("your OS system is not currently supported bt this program")
+    os.system(clearing_use)
     exited = False
     while not exited:
         
@@ -93,10 +116,10 @@ if __name__ == "__main__":
             case "s" | "settings":
                 print("there are currently no settings at the moment")
             case "e" | "exit":
-                os.system("clear")
+                os.system(clearing_use)
                 quit()
             case "c" | "clear":
-                os.system("clear")
+                os.system(clearing_use)
             case "r" | "run":
                 
                 split_words = ask.split()
@@ -104,10 +127,12 @@ if __name__ == "__main__":
                 options = split_words[2:][0] if len(split_words)>2 else None
                 try:
 
-                    main(file, options)
+                    main(file, options, clearing_use)
                 except FileNotFoundError:
                     print(f"{file} doesn't exist please use a file that actually exists!")
+            case "os":
+                print(os.name)
             case _:
                 print("enter a valid command please")
 
-#https://github.com/KOALAS2648/Stacker/tree/main
+#https://github.com/KOALAS2648/Stacker
