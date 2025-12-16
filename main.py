@@ -4,7 +4,7 @@ def parse(idxInlist, section, times):
     counter = 0
     return_code =[]
     for line in section:
-        
+        command_word = line[0]
         if command_word == "END":
             break
         counter +=1
