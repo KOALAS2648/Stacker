@@ -1,4 +1,5 @@
-# All the funnctions that a stack uses are supported: - these functions aren't case sensitive
+# StackerLang
+*All the funnctions that a stack uses are supported: - these functions aren't case sensitive
 PUSH <p></p>
 POP <p></p>
 PEEK<p></p>
