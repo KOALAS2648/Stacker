@@ -1,5 +1,6 @@
 import classStack as cs
 from Errors import *
+import os
 def parse(idxInlist, section, times):
     counter = 0
     return_code =[]
@@ -70,6 +71,32 @@ def main(file):
 
 
 if __name__ == "__main__":
-    main("code.txt")
+    exited = False
+    while not exited:
+        
+        ask = input(">>> ")
+        match ask.split()[0]:
+            case "h" | "help":
+                print("r/run - run")
+                print("h/help - help")
+                print("s/settings - settings")
+                print("e/ exit - exit the program")
+                print("c/clear - clear the terminal")
+                input()
+            case "s" | "settings":
+                print("there are currently no settings at the moment")
+            case "e" | "exit":
+                quit()
+            case "c" | clear:
+                os.system("clear")
+            case "r" | "run":
+                split_words = ask.split(" ")
+                file = split_words[1]
+                try:
+                    main(file)
+                except FileNotFoundError:
+                    print(f"{file} doesn't exist please use a file that actually exists!")
+            case _:
+                print("enter a valid command please")
 
 #https://github.com/KOALAS2648/Stacker/tree/main
