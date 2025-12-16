@@ -1,6 +1,6 @@
 # StackerLang
-*All the funnctions that a stack uses are supported: - these functions aren't case sensitive
-PUSH <p></p>
+## All the funnctions that a stack uses are supported: - these functions aren't case sensitive
+PUSH 
 POP <p></p>
 PEEK<p></p>
 isEmpty/isFull - True / False<p></p>
