@@ -8,3 +8,5 @@ class StackExist(Exception):
     pass
 class StackDoesNotExits(Exception):
     pass
+class InvalidOption(Exception):
+    pass

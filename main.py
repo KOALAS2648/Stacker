@@ -12,7 +12,9 @@ def parse(idxInlist, section, times):
 
     repeatedSection = section[1:counter]
     return [i for i in repeatedSection*times]
-def main(file):
+
+
+def main(file, option):
     stacks = {}
     file = open(file, "r")
     file_data = file.readlines()
@@ -67,10 +69,15 @@ def main(file):
             file_data.pop(idx)
             for i in dataToInsert:
                 file_data.insert(idx, i)
-            
+    match option:
+        case "-fd" | "--file-data":
+            print(file_data)
+        case _:
+            raise InvalidOption("Invalid operation used")
 
 
 if __name__ == "__main__":
+    os.system("clear")
     exited = False
     while not exited:
         
@@ -86,14 +93,18 @@ if __name__ == "__main__":
             case "s" | "settings":
                 print("there are currently no settings at the moment")
             case "e" | "exit":
+                os.system("clear")
                 quit()
             case "c" | "clear":
                 os.system("clear")
             case "r" | "run":
-                split_words = ask.split(" ")
+                
+                split_words = ask.split()
                 file = split_words[1]
+                options = split_words[2:][0] if len(split_words)>2 else None
                 try:
-                    main(file)
+
+                    main(file, options)
                 except FileNotFoundError:
                     print(f"{file} doesn't exist please use a file that actually exists!")
             case _:
