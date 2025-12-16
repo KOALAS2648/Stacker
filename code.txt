@@ -1,5 +1,4 @@
 first_stack STACK 7
-first_stack STACK 6
 first_stack PUSH 10
 first_stack PUSH 20
 first_stack PUSH 30
@@ -11,8 +10,7 @@ LOOP 4
 
 first_stack pop
 END
-first_stack print
-first_stack peek
+
 first_stack PUSH 70
 first_stack PUSH 80
-
+first_stack peek
