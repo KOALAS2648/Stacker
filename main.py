@@ -87,7 +87,7 @@ if __name__ == "__main__":
                 print("there are currently no settings at the moment")
             case "e" | "exit":
                 quit()
-            case "c" | clear:
+            case "c" | "clear":
                 os.system("clear")
             case "r" | "run":
                 split_words = ask.split(" ")
