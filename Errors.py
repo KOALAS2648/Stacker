@@ -6,7 +6,7 @@ class InvalidCommand(Exception):
     pass
 class StackExist(Exception):
     pass
-class StackDoesNotExits(Exception):
+class StackDoesNotExist(Exception):
     pass
 class InvalidOption(Exception):
     pass

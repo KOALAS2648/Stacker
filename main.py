@@ -37,20 +37,27 @@ def main(file, option, clearName):
             file_data[idx] = line[:-1].split(" ")
         else:
             file_data[idx] = line.split(" ")
-    loop_words = ["LOOP", "END"]
+    loop_words_upper = ["LOOP", "END"]
+    loop_words_lower = ["loop", "end"]
     for idx, line in enumerate(file_data):
         #print(line)
         loop_flag = False
         command_word = line[0]
+        if command_word in loop_words_lower:
+            try:
+                raise InvalidCommand(f"{command_word} needs to be capitilized")
+            except InvalidCommand as IC:
+                print(IC)
+                break
         if line == [""]:
             continue
         elif command_word in stacks and line[1].upper() == "STACK":
             raise StackExist(f"stack '{command_word}' cannot be created as stack '{command_word}' already exists")
-        if command_word not in loop_words:
+        if command_word not in loop_words_upper:
             if command_word not in stacks and line[1].upper() == "STACK":
                 stacks[command_word] = cs.Stack(int(line[-1]))
                 continue
-        if command_word in loop_words:
+        if command_word in loop_words_upper:
             pass
         else:
             try:
@@ -62,7 +69,7 @@ def main(file, option, clearName):
                     print(SDNE)
                     break
         
-        if command_word not in loop_words:
+        if command_word not in loop_words_upper:
             n = line[1]
             match n.upper():
                 case "PUSH":
