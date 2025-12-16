@@ -24,7 +24,7 @@ def main(file):
     for idx, line in enumerate(file_data):
         #print(line)
         loop_flag = False
-        command_word = command_word
+        command_word = line[0]
         if line == [""]:
             continue
         elif command_word in stacks and line[1].upper() == "STACK":
