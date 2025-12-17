@@ -1,0 +1,5 @@
+j STACK 100
+
+g VAR INT 11
+j push g
+j peek

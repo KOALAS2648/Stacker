@@ -10,3 +10,7 @@ class StackDoesNotExist(Exception):
     pass
 class InvalidOption(Exception):
     pass
+class CannotOverWriteStack(Exception):
+    pass
+class VariableAlreadyExists(Exception):
+    pass

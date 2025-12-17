@@ -1,6 +1,26 @@
 import classStack as cs
 import os
 from Errors import *
+from Var import *
+
+def parse_varible(line,stacks, variablesDict):
+    #print(line)
+    var_name = line[0]
+    if var_name in stacks:
+        try:
+            raise CannotOverWriteStack(f"{var_name} already exists as a stack")
+        except CannotOverWriteStack as COWS:
+            print(COWS)
+    elif var_name in variablesDict:
+        try:
+            raise VariableAlreadyExists(f"{var_name} already exsits")
+        except VariableAlreadyExists as VAE:
+            print(VAE)
+    
+    var_type = line[2]
+    var_val = line[3:][0]
+    return (var_name, Variable(var_type, var_val))
+
 def parse(idxInlist, section, times):
     counter = 0
     return_code =[]
@@ -16,6 +36,7 @@ def parse(idxInlist, section, times):
 
 def main(file, option, clearName):
     file_data_flag = False
+    variableFlag = True
     match option:
         case "-fd" | "--file-data":
             file_data_flag =  True
@@ -23,6 +44,8 @@ def main(file, option, clearName):
             os.system(clearName)
         case None:
             pass
+        case "-v" | "--variables":
+            variableFlag = True
         case _:
             try:
                 raise InvalidOption("Invalid operation used")
@@ -30,6 +53,7 @@ def main(file, option, clearName):
                 print(IO)
                 return 
     stacks = {}
+    variables = {}
     file = open(file, "r")
     file_data = file.readlines()
     for idx, line in enumerate(file_data):
@@ -60,19 +84,25 @@ def main(file, option, clearName):
         if command_word in loop_words_upper:
             pass
         else:
-            try:
-                stack_name = stacks[command_word]
-            except KeyError:
+            if line[1].upper() == "VAR":
+                pass
+            else:
                 try:
-                    raise StackDoesNotExist(f"stack {command_word} does not exist")
-                except StackDoesNotExist as SDNE:
-                    print(SDNE)
-                    break
+                    stack_name = stacks[command_word]
+                except KeyError:
+                    try:
+                        raise StackDoesNotExist(f"stack {command_word} does not exist")
+                    except StackDoesNotExist as SDNE:
+                        print(SDNE)
+                        break
         
         if command_word not in loop_words_upper:
             n = line[1]
             match n.upper():
                 case "PUSH":
+                    if line[-1] in variables:
+                        var_name = line[-1]
+                        line[-1] = variables[var_name].value
                     stack_name.push(line[-1])
                 case "POP":
                     stack_name.pop()
@@ -86,6 +116,9 @@ def main(file, option, clearName):
                     print(stack_name.data)
                 case "ISFULL":
                     print(stack_name.isFull())
+                case "VAR":
+                    vname, variable = parse_varible(line, stacks, variables)
+                    variables[vname] = variable
                 case _:
                     raise InvalidCommand(f"Invalid command: {line[1]}")
 
@@ -96,6 +129,8 @@ def main(file, option, clearName):
                 file_data.insert(idx, i)
     if file_data_flag:
         print(file_data)
+    if variableFlag:
+        print(variables)
 
 
 if __name__ == "__main__":
