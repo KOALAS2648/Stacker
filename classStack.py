@@ -1,3 +1,4 @@
+from Errors import *
 class Stack:
     def __init__(self, MAX_SIZE):
         self.data = []
@@ -5,7 +6,7 @@ class Stack:
         self.top_pointer = -1
     def push(self, inp):
         self.top_pointer +=1
-        if self.top_pointer == self.MAX_SIZE:
+        if self.top_pointer > self.MAX_SIZE:
             raise StackOverFlow("stack overflow error")
         self.data.insert(self.top_pointer, inp)
         

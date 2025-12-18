@@ -3,6 +3,60 @@ import os
 from Errors import *
 from Var import *
 
+def parseMiniupVars(line, stacks, variablesDict):
+    var_name = line[0]
+    #print(line)
+    if var_name not in variablesDict:
+        try:
+            raise VariableDoesntExist(f"{var_name} doesn't exist")
+        except VariableDoesntExist as VDE:
+            print(VDE)
+    match line[1].upper():
+        case "ADD":
+            match variablesDict[var_name].type:
+                case "INT":
+                    if type(line[-1]) is int:
+                        variablesDict[var_name].value += line[-1]
+                         
+                    elif type(line[-1]) is str:
+                        try:
+                            raise TypeError(f"can't add an int to a string")
+                        except TypeError as TE:
+                            print(TE)
+                case "STRING":
+                    if type(line[-1]) is int:
+                        try:
+                            raise TypeError(f"can't add an int to a string")
+                        except TypeError as TE:
+                            print(TE)
+                    elif type(line[-1]) is str:
+                        variablesDict[var_name].value += line[-1]               
+        case "SUB":
+            match variablesDict[var_name].type:
+                case "INT":
+                    if type(line[-1]) is int:
+                        variablesDict[var_name].value -= line[-1]
+                        print(variablesDict[var_name].value)
+                    elif type(line[-1]) is str:
+                        try:
+                            raise TypeError("Can't subtract a string from an int")
+                        except TypeError as TE:
+                            print(TE)
+                    else:
+                        print("howss")
+                case "STRING":
+                    try:
+                        raise TypeError("can't subract from a string")
+                    except TypeError as TE:
+                        print(TE)
+                case _:
+                    print("how has this line been executed???")
+        case _:
+            try:
+                raise InvalidOperater(f"can't use {line[1].upper()}")
+            except InvalidOperater as IO:
+                print(IO)
+
 def parse_varible(line,stacks, variablesDict):
     #print(line)
     var_name = line[0]
@@ -21,7 +75,8 @@ def parse_varible(line,stacks, variablesDict):
     var_val = line[3:][0]
     return (var_name, Variable(var_type, var_val))
 
-def parse(idxInlist, section, times):
+def parse(idxInlist, section, times, stacks, variablesDict, function_list):
+    print(section)
     counter = 0
     return_code =[]
     for line in section:
@@ -31,12 +86,35 @@ def parse(idxInlist, section, times):
         counter +=1
 
     repeatedSection = section[1:counter]
-    return [i for i in repeatedSection*times]
+    RS = repeatedSection.copy()
+    print(repeatedSection)
+    for i in range(0, times):
+        for idx, n in enumerate(repeatedSection):
+            n2 = RS[idx]
+            
+            if n2[-1] in variablesDict:
+                        var_name = n[-1]
+                        n[-1] = variablesDict[var_name].value
+            #print(n[1]) 
+            #print(f"n:{n}")
+            #print(f"n2:{n2}")
+            #print(n2)
+            if n2[1] =="ADD" or n[1] == "SUB":
+                    
+                parseMiniupVars(n, stacks, variablesDict)
+                return_code.append(n2)
+            if n2[1] == "PUSH":
+                    
+                    return_code.append(n2)
+            #print(n2)
+    print(return_code)
+    return return_code
 
 
 def main(file, option, clearName):
+    function_list = ["PEEK", "PUSH", "STACK", "POP", "ISEMPTY", "ISFULL", "PRINT" ]
     file_data_flag = False
-    variableFlag = True
+    variableFlag = False
     match option:
         case "-fd" | "--file-data":
             file_data_flag =  True
@@ -63,6 +141,7 @@ def main(file, option, clearName):
             file_data[idx] = line.split(" ")
     loop_words_upper = ["LOOP", "END"]
     loop_words_lower = ["loop", "end"]
+    var_use_words = ["VAR", "SUB", "ADD"]
     for idx, line in enumerate(file_data):
         #print(line)
         loop_flag = False
@@ -81,34 +160,34 @@ def main(file, option, clearName):
             if command_word not in stacks and line[1].upper() == "STACK":
                 stacks[command_word] = cs.Stack(int(line[-1]))
                 continue
-        if command_word in loop_words_upper:
+        if command_word in loop_words_upper or line[1].upper() in var_use_words or command_word in variables:
             pass
         else:
-            if line[1].upper() == "VAR":
-                pass
-            else:
+            try:
+                stack_name = stacks[command_word]
+            except KeyError:
                 try:
-                    stack_name = stacks[command_word]
-                except KeyError:
-                    try:
-                        raise StackDoesNotExist(f"stack {command_word} does not exist")
-                    except StackDoesNotExist as SDNE:
-                        print(SDNE)
-                        break
+                    raise StackDoesNotExist(f"stack {command_word} does not exist")
+                except StackDoesNotExist as SDNE:
+                    print(SDNE)
+                    break
         
         if command_word not in loop_words_upper:
             n = line[1]
-            match n.upper():
-                case "PUSH":
-                    if line[-1] in variables:
+            if line[-1] in variables:
                         var_name = line[-1]
                         line[-1] = variables[var_name].value
+            match n.upper():
+                
+                case "PUSH": #done
                     stack_name.push(line[-1])
-                case "POP":
+                case  "ADD"| "SUB":
+                    parseMiniupVars(line, stacks, variables)
+                case "POP": # done
                     stack_name.pop()
-                case "PEEK":
+                case "PEEK": # done
                     print(stack_name.peek())
-                case "SIZE":
+                case "SIZE": # done
                     print(stack_name.size())
                 case "ISEMPTY":
                     print(stack_name.isEmpty())
@@ -119,18 +198,23 @@ def main(file, option, clearName):
                 case "VAR":
                     vname, variable = parse_varible(line, stacks, variables)
                     variables[vname] = variable
+                
                 case _:
                     raise InvalidCommand(f"Invalid command: {line[1]}")
 
         elif command_word == "LOOP":
-            dataToInsert = parse(idx, file_data[idx:], int(line[1]))
+            dataToInsert = parse(idx, file_data[idx:], int(line[1]), stacks, variables, function_list)
             file_data.pop(idx)
             for i in dataToInsert:
-                file_data.insert(idx, i)
+
+                file_data.insert(idx+1, i)
     if file_data_flag:
         print(file_data)
     if variableFlag:
         print(variables)
+        for i in variables:
+            print(f"{i} : {variables[i].value}")
+            print(f"{i} : {variables[i].type}")
 
 
 if __name__ == "__main__":
@@ -166,6 +250,13 @@ if __name__ == "__main__":
                 
                 split_words = ask.split()
                 file = split_words[1]
+                file_name = file.split(".")
+                if file_name[1] != "stack":
+                    try:
+                        raise WrongFileExtenstion(f"file type is incorrect")
+                    except WrongFileExtenstion as WFE:
+                        print(WFE)
+                        continue
                 options = split_words[2:][0] if len(split_words)>2 else None
                 try:
 

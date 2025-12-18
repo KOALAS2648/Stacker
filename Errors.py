@@ -14,3 +14,9 @@ class CannotOverWriteStack(Exception):
     pass
 class VariableAlreadyExists(Exception):
     pass
+class WrongFileExtenstion(Exception):
+    pass
+class VariableDoesntExist(Exception):
+    pass
+class InvalidOperater(Exception):
+    pass
