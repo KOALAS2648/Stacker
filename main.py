@@ -3,9 +3,9 @@ import os
 from Errors import *
 from Var import *
 
-def parseMiniupVars(line, stacks, variablesDict):
+def parseMiniupVars(line, variablesDict:dict):
     var_name = line[0]
-    #print(line)
+    #print(f"The {line} and the type is {type(line)}")
     if var_name not in variablesDict:
         try:
             raise VariableDoesntExist(f"{var_name} doesn't exist")
@@ -36,7 +36,7 @@ def parseMiniupVars(line, stacks, variablesDict):
                 case "INT":
                     if type(line[-1]) is int:
                         variablesDict[var_name].value -= line[-1]
-                        print(variablesDict[var_name].value)
+                        
                     elif type(line[-1]) is str:
                         try:
                             raise TypeError("Can't subtract a string from an int")
@@ -58,7 +58,6 @@ def parseMiniupVars(line, stacks, variablesDict):
                 print(IO)
 
 def parse_varible(line,stacks, variablesDict):
-    #print(line)
     var_name = line[0]
     if var_name in stacks:
         try:
@@ -75,44 +74,40 @@ def parse_varible(line,stacks, variablesDict):
     var_val = line[3:][0]
     return (var_name, Variable(var_type, var_val))
 
-def parse(idxInlist, section, times, stacks, variablesDict, function_list):
-    print(section)
+def parse(section, times, variablesDict):
     counter = 0
-    return_code =[]
+    #print(section)
     for line in section:
         command_word = line[0]
         if command_word == "END":
             break
         counter +=1
-
     repeatedSection = section[1:counter]
-    RS = repeatedSection.copy()
-    print(repeatedSection)
-    for i in range(0, times):
-        for idx, n in enumerate(repeatedSection):
-            n2 = RS[idx]
-            
-            if n2[-1] in variablesDict:
-                        var_name = n[-1]
-                        n[-1] = variablesDict[var_name].value
-            #print(n[1]) 
-            #print(f"n:{n}")
-            #print(f"n2:{n2}")
-            #print(n2)
-            if n2[1] =="ADD" or n[1] == "SUB":
-                    
-                parseMiniupVars(n, stacks, variablesDict)
-                return_code.append(n2)
-            if n2[1] == "PUSH":
-                    
-                    return_code.append(n2)
-            #print(n2)
-    print(return_code)
-    return return_code
+    repeatedSection = [i for i in repeatedSection if i]
+    codeLines = []
+    for _ in range(times):
+        for line in repeatedSection:
+            codeLines.append(line.copy())
 
+    for idx, line in enumerate(codeLines):
+        if (line[-1] in variablesDict):
+            var_name = line[-1]
+            codeLines[idx][-1] = variablesDict[var_name].value
 
-def main(file, option, clearName):
+        match line[1].upper():
+            case "ADD" | "SUB":
+                parseMiniupVars(line, variablesDict)
+                
+            case "PUSH":
+                pass
+
+        codeLines[idx] = line
+    return codeLines
+remove_whitespace = lambda l: [x for x in l if x]
+def main(file="main.stack", option=None, clearName="posix"):
     function_list = ["PEEK", "PUSH", "STACK", "POP", "ISEMPTY", "ISFULL", "PRINT" ]
+    # removes the whitespace before the code so I can make indented lines
+    
     file_data_flag = False
     variableFlag = False
     match option:
@@ -120,10 +115,11 @@ def main(file, option, clearName):
             file_data_flag =  True
         case "-c" | "--clear":
             os.system(clearName)
-        case None:
-            pass
+        
         case "-v" | "--variables":
             variableFlag = True
+        case None:
+            pass
         case _:
             try:
                 raise InvalidOption("Invalid operation used")
@@ -139,10 +135,13 @@ def main(file, option, clearName):
             file_data[idx] = line[:-1].split(" ")
         else:
             file_data[idx] = line.split(" ")
-    loop_words_upper = ["LOOP", "END"]
     loop_words_lower = ["loop", "end"]
+    loop_words_upper = list(map(lambda x: x.upper(), loop_words_lower))
     var_use_words = ["VAR", "SUB", "ADD"]
     for idx, line in enumerate(file_data):
+        if line == [""]:
+            continue
+        line = remove_whitespace(line)
         #print(line)
         loop_flag = False
         command_word = line[0]
@@ -152,8 +151,7 @@ def main(file, option, clearName):
             except InvalidCommand as IC:
                 print(IC)
                 break
-        if line == [""]:
-            continue
+        
         elif command_word in stacks and line[1].upper() == "STACK":
             raise StackExist(f"stack '{command_word}' cannot be created as stack '{command_word}' already exists")
         if command_word not in loop_words_upper:
@@ -173,16 +171,18 @@ def main(file, option, clearName):
                     break
         
         if command_word not in loop_words_upper:
-            n = line[1]
-            if line[-1] in variables:
-                        var_name = line[-1]
+            n = line[-1]
+            if n in variables:
+                        var_name = n
                         line[-1] = variables[var_name].value
-            match n.upper():
+
+            word = line[1]
+            match word.upper():
                 
                 case "PUSH": #done
                     stack_name.push(line[-1])
                 case  "ADD"| "SUB":
-                    parseMiniupVars(line, stacks, variables)
+                    parseMiniupVars(line, variables)
                 case "POP": # done
                     stack_name.pop()
                 case "PEEK": # done
@@ -192,7 +192,7 @@ def main(file, option, clearName):
                 case "ISEMPTY":
                     print(stack_name.isEmpty())
                 case "PRINT":
-                    print(stack_name.data)
+                    print(stack_name.data[::-1])
                 case "ISFULL":
                     print(stack_name.isFull())
                 case "VAR":
@@ -203,10 +203,9 @@ def main(file, option, clearName):
                     raise InvalidCommand(f"Invalid command: {line[1]}")
 
         elif command_word == "LOOP":
-            dataToInsert = parse(idx, file_data[idx:], int(line[1]), stacks, variables, function_list)
+            dataToInsert = parse(file_data[idx:], int(line[1]), variables)
             file_data.pop(idx)
             for i in dataToInsert:
-
                 file_data.insert(idx+1, i)
     if file_data_flag:
         print(file_data)
